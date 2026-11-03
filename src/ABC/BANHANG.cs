@@ -126,11 +126,8 @@ namespace ABC
                         Cursor = Cursors.Hand
                     };
 
-                    string fullPath = Path.Combine(rootPath, spDauTien.DuongDanAnh ?? "");
-                    if (File.Exists(fullPath))
-                        pic.Image = Image.FromFile(fullPath);
-                    else
-                        pic.Image = Properties.Resources.no_image;
+                    pic.Image = ProductImageHelper.LoadFromFile(ProductImageHelper.ToFullPath(spDauTien.DuongDanAnh))
+                                ?? Properties.Resources.no_image;
 
                     Label lblTen = new Label
                     {
@@ -330,16 +327,8 @@ namespace ABC
                 Location = new Point(10, 10)
             };
 
-            string rootPath = Path.GetFullPath(Path.Combine(Application.StartupPath, @"..\..\.."));
-            string fullPath = Path.Combine(rootPath, sp.DuongDanAnh ?? "");
-            if (File.Exists(fullPath))
-            {
-                byte[] imageBytes = File.ReadAllBytes(fullPath);
-                using (var ms = new MemoryStream(imageBytes))
-                {
-                    pic.Image = Image.FromStream(ms);
-                }
-            }
+            pic.Image = ProductImageHelper.LoadFromFile(ProductImageHelper.ToFullPath(sp.DuongDanAnh))
+                        ?? Properties.Resources.no_image;
 
             Label lblTen = new Label
             {
@@ -570,16 +559,8 @@ namespace ABC
                 Location = new Point(10, 10)
             };
 
-            string rootPath = Path.GetFullPath(Path.Combine(Application.StartupPath, @"..\..\.."));
-            string fullPath = Path.Combine(rootPath, sp.DuongDanAnh ?? "");
-            if (File.Exists(fullPath))
-            {
-                byte[] imageBytes = File.ReadAllBytes(fullPath);
-                using (var ms = new MemoryStream(imageBytes))
-                {
-                    pic.Image = Image.FromStream(ms);
-                }
-            }
+            pic.Image = ProductImageHelper.LoadFromFile(ProductImageHelper.ToFullPath(sp.DuongDanAnh))
+                        ?? Properties.Resources.no_image;
 
             Label lblTen = new Label
             {

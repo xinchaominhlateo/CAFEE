@@ -179,14 +179,7 @@ namespace ABC
                         string relativePath = row.Cells["DuongDanAnh"].Value.ToString();
                         string fullPath = Path.Combine(rootPath, relativePath);
 
-                        if (File.Exists(fullPath))
-                        {
-                            row.Cells["Anh"].Value = System.Drawing.Image.FromFile(fullPath);
-                        }
-                        else
-                        {
-                            row.Cells["Anh"].Value = Properties.Resources.no_image;
-                        }
+                        row.Cells["Anh"].Value = ProductImageHelper.LoadFromFile(ProductImageHelper.ToFullPath(relativePath)) ?? (object)Properties.Resources.no_image;
                     }
                     else
                     {

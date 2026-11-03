@@ -226,21 +226,21 @@
             // tlpSuaMoTa
             // 
             tlpSuaMoTa.ColumnCount = 2;
-            tlpSuaMoTa.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tlpSuaMoTa.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tlpSuaMoTa.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60F));
+            tlpSuaMoTa.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40F));
             tlpSuaMoTa.Controls.Add(btnSuaAnh, 1, 0);
             tlpSuaMoTa.Controls.Add(picAnhSua, 0, 0);
             tlpSuaMoTa.Dock = DockStyle.Fill;
             tlpSuaMoTa.Location = new Point(408, 78);
             tlpSuaMoTa.Name = "tlpSuaMoTa";
             tlpSuaMoTa.RowCount = 1;
-            tlpSuaMoTa.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tlpSuaMoTa.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             tlpSuaMoTa.Size = new Size(399, 207);
             tlpSuaMoTa.TabIndex = 3;
             // 
             // btnSuaAnh
             // 
-            btnSuaAnh.Anchor = AnchorStyles.Left;
+            btnSuaAnh.Anchor = AnchorStyles.None;
             btnSuaAnh.Location = new Point(202, 67);
             btnSuaAnh.Name = "btnSuaAnh";
             btnSuaAnh.Size = new Size(142, 73);
@@ -251,8 +251,11 @@
             // 
             // picAnhSua
             // 
-            picAnhSua.Anchor = AnchorStyles.Left;
+            picAnhSua.BackColor = Color.White;
+            picAnhSua.BorderStyle = BorderStyle.FixedSingle;
+            picAnhSua.Dock = DockStyle.Fill;
             picAnhSua.Location = new Point(3, 3);
+            picAnhSua.Margin = new Padding(6);
             picAnhSua.Name = "picAnhSua";
             picAnhSua.Size = new Size(193, 201);
             picAnhSua.SizeMode = PictureBoxSizeMode.Zoom;

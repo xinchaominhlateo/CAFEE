@@ -27,6 +27,7 @@ namespace ABC
             LoadLoaiSanPham();
             UIButton.ReplaceStandardButtonsWithIcons(this, Properties.Resources.exit, Properties.Resources.delete, Properties.Resources.refresh, Properties.Resources.done);
             UIText.ApplyButtonTextStyle(this);
+            ProductImageHelper.ShowImage(picAnh, null); // hiện ảnh mặc định khi chưa chọn
         }
         private void LoadLoaiSanPham()
         {
@@ -42,31 +43,6 @@ namespace ABC
             }
         }
 
-        private void HandleImageUpload(string maSP)
-        {
-            if (string.IsNullOrEmpty(selectedImagePath) || string.IsNullOrEmpty(maSP))
-                return;
-
-            try
-            {
-                string rootPath = Path.GetFullPath(Path.Combine(Application.StartupPath, @"..\..\.."));
-                string imageFolder = Path.Combine(rootPath, "images", "products");
-
-                if (!Directory.Exists(imageFolder))
-                    Directory.CreateDirectory(imageFolder);
-
-                string extension = Path.GetExtension(selectedImagePath);
-                string newFileName = maSP + extension;
-                string destinationPath = Path.Combine(imageFolder, newFileName);
-
-                File.Copy(selectedImagePath, destinationPath, true);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Thêm dữ liệu thành công, nhưng lưu ảnh thất bại: " + ex.Message, "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-
-        }
         private void btnThoat_Click(object sender, EventArgs e)
         {
             this.Close();
@@ -107,6 +83,13 @@ namespace ABC
                     return;
                 }
 
+                // Lưu ảnh (nếu có) vào images/products và ghi đường dẫn tương đối vào DB
+                string duongDanAnh = null;
+                if (!string.IsNullOrEmpty(selectedImagePath))
+                {
+                    duongDanAnh = ProductImageHelper.SaveProductImage(selectedImagePath, string.IsNullOrEmpty(maSP) ? tenSP : maSP);
+                }
+
                 // Build DTO and call BUS (uses stored procedure internally)
                 SanPhamDTO sp = new SanPhamDTO
                 {
@@ -116,13 +99,12 @@ namespace ABC
                     MaLoai = maLoai,
                     GiaBan = giaBan,
                     CanhBaoTonKho = canhBao,
-                    DuongDanAnh = null
+                    DuongDanAnh = duongDanAnh
                 };
 
                 bool ok = sanPhamBUS.AddSanPham(sp);
 
-                // 3. Xử lý ảnh (giữ nguyên) - use provided maSP for filename (legacy)
-                HandleImageUpload(maSP);
+                if (!ok && duongDanAnh != null) ProductImageHelper.TryDelete(duongDanAnh);
 
                 if (ok)
                 {
@@ -165,9 +147,9 @@ namespace ABC
                         }
 
                         // Hiển thị ảnh
-                        picAnh.Image = Image.FromFile(selectedImagePath);
-                        picAnh.SizeMode = PictureBoxSizeMode.Zoom;
-                        picAnh.BorderStyle = BorderStyle.FixedSingle;
+                        Image img = ProductImageHelper.LoadFromFile(selectedImagePath);
+                        if (img == null) throw new InvalidDataException("File không phải ảnh hợp lệ.");
+                        ProductImageHelper.ShowImage(picAnh, img);
                     }
                     catch (Exception ex)
                     {

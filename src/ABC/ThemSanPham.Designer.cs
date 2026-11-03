@@ -101,10 +101,14 @@
             // 
             // picAnh
             // 
-            picAnh.Anchor = AnchorStyles.Left;
+            picAnh.BackColor = Color.White;
+            picAnh.BorderStyle = BorderStyle.FixedSingle;
+            picAnh.Dock = DockStyle.Fill;
             picAnh.Location = new Point(3, 3);
+            picAnh.Margin = new Padding(6);
             picAnh.Name = "picAnh";
             picAnh.Size = new Size(171, 101);
+            picAnh.SizeMode = PictureBoxSizeMode.Zoom;
             picAnh.TabIndex = 0;
             picAnh.TabStop = false;
             // 
@@ -120,23 +124,23 @@
             // 
             // tlpAnh
             // 
-            tlpAnh.Anchor = AnchorStyles.Left;
             tlpAnh.ColumnCount = 2;
-            tlpAnh.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tlpAnh.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 181F));
+            tlpAnh.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60F));
+            tlpAnh.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40F));
+            tlpAnh.Dock = DockStyle.Fill;
             tlpAnh.Controls.Add(picAnh, 0, 0);
             tlpAnh.Controls.Add(btnThemAnh, 1, 0);
             tlpAnh.Location = new Point(411, 126);
             tlpAnh.Name = "tlpAnh";
             tlpAnh.RowCount = 1;
-            tlpAnh.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tlpAnh.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             tlpAnh.Size = new Size(359, 107);
             tlpAnh.TabIndex = 3;
             // 
             // btnThemAnh
             // 
-            btnThemAnh.Anchor = AnchorStyles.Left;
-            btnThemAnh.Location = new Point(181, 19);
+            btnThemAnh.Anchor = AnchorStyles.None;
+            btnThemAnh.Location = new Point(230, 19);
             btnThemAnh.Name = "btnThemAnh";
             btnThemAnh.Size = new Size(123, 68);
             btnThemAnh.TabIndex = 1;

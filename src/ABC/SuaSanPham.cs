@@ -18,6 +18,7 @@ namespace ABC
         private DanhSachSanPhamBUS sanPhamBUS = DanhSachSanPhamBUS.Instance;
         private string maSP; // Mã sản phẩm đang sửa
         private string selectedImagePath = null; // Đường dẫn ảnh mới (nếu có)
+        private string currentImagePath = null;  // Đường dẫn tương đối ảnh hiện tại trong DB
         public SuaSanPham(string maSP)
         {
             InitializeComponent();
@@ -74,6 +75,7 @@ namespace ABC
 
                 // Nếu DB có CanhBaoTonKho thì hiển thị (SanPhamDTO có trường CanhBaoTonKho)
                 txtSoLuongCanhBao.Text = info.CanhBaoTonKho.ToString();
+                currentImagePath = info.DuongDanAnh;
 
                 // 2. Vì kích cỡ đã bị remove, dùng single price control (txtSuaGiaS) to show GiaBan
                 try
@@ -88,75 +90,14 @@ namespace ABC
             }
         }
 
-        // Tải ảnh (dựa trên MaSP)
+        // Tải ảnh: ưu tiên đường dẫn trong DB, fallback ảnh kiểu cũ images/products/{maSP}.*
         private void LoadProductImage()
         {
-            try
-            {
-                string rootPath = Path.GetFullPath(Path.Combine(Application.StartupPath, @"..\..\.."));
-                string imagesFolder = Path.Combine(rootPath, "images", "products");
-
-                string[] extensions = { ".png", ".jpg", ".jpeg", ".gif" };
-                string imagePath = null;
-
-                foreach (string ext in extensions)
-                {
-                    string path = Path.Combine(imagesFolder, this.maSP + ext);
-                    if (File.Exists(path))
-                    {
-                        imagePath = path;
-                        break;
-                    }
-                }
-
-                if (imagePath != null)
-                {
-                    if (picAnhSua.Image != null)
-                        picAnhSua.Image.Dispose();
-
-                    byte[] imageBytes = File.ReadAllBytes(imagePath);
-                    using (var ms = new MemoryStream(imageBytes))
-                    {
-                        picAnhSua.Image = Image.FromStream(ms);
-                    }
-                    picAnhSua.SizeMode = PictureBoxSizeMode.Zoom;
-                }
-            }
-            catch { /* Bỏ qua nếu lỗi */ }
-        }
-
-        private void HandleImageUpload(string maSP)
-        {
-            if (string.IsNullOrEmpty(selectedImagePath) || string.IsNullOrEmpty(maSP))
-                return;
-
-            try
-            {
-                // Đi lên thư mục gốc dự án (src/ABC)
-                string rootPath = Path.GetFullPath(Path.Combine(Application.StartupPath, @"..\..\.."));
-                string imagesFolder = Path.Combine(rootPath, "images", "products");
-
-                if (!Directory.Exists(imagesFolder))
-                    Directory.CreateDirectory(imagesFolder);
-
-                string extension = Path.GetExtension(selectedImagePath);
-                string newFileName = maSP + extension;
-                string destinationPath = Path.Combine(imagesFolder, newFileName);
-
-                // Giải phóng file nếu đang bị giữ bởi PictureBox
-                if (File.Exists(destinationPath))
-                {
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                }
-
-                // Ghi đè ảnh mới
-                File.Copy(selectedImagePath, destinationPath, true);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Cập nhật dữ liệu thành công, nhưng lưu ảnh thất bại: " + ex.Message, "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
+            Image img = null;
+            string rel = ProductImageHelper.ResolveRelativePath(currentImagePath, this.maSP);
+            if (rel != null)
+                img = ProductImageHelper.LoadFromFile(ProductImageHelper.ToFullPath(rel));
+            ProductImageHelper.ShowImage(picAnhSua, img);
         }
 
         private void btnThoat_Click(object sender, EventArgs e)
@@ -196,23 +137,24 @@ namespace ABC
                     return;
                 }
 
+                // Có ảnh mới -> lưu file & cập nhật đường dẫn; không có -> giữ nguyên ảnh cũ
+                string newImagePath = null;
+                if (!string.IsNullOrEmpty(selectedImagePath))
+                    newImagePath = ProductImageHelper.SaveProductImage(selectedImagePath, this.maSP);
+
                 SanPhamDTO sp = new SanPhamDTO
                 {
                     Masp = maspInt,
                     TenSP = txtTen.Text.Trim(),
                     MaLoai = cbbLoaiSanPham.SelectedValue != null ? Convert.ToInt32(cbbLoaiSanPham.SelectedValue) : 0,
                     GiaBan = giaBan,
-                    DuongDanAnh = null,
+                    DuongDanAnh = newImagePath ?? currentImagePath,
                     CanhBaoTonKho = canhBao
                 };
 
                 bool ok = sanPhamBUS.UpdateSanPham(sp);
 
-                // 2. Xử lý ảnh (giữ nguyên)
-                if (selectedImagePath != null)
-                {
-                    HandleImageUpload(this.maSP);
-                }
+                if (!ok && newImagePath != null) ProductImageHelper.TryDelete(newImagePath);
 
                 if (ok)
                 {
@@ -243,22 +185,9 @@ namespace ABC
                 {
                     selectedImagePath = openFileDialog.FileName; // Lưu đường dẫn
 
-                    // Giải phóng ảnh cũ (nếu có)
-                    if (picAnhSua.Image != null)
-                    {
-                        picAnhSua.Image.Dispose();
-                    }
-
-                    // Tải ảnh vào MemoryStream để không khóa file
-                    // Đọc tất cả byte của file vào bộ nhớ
-                    byte[] imageBytes = File.ReadAllBytes(selectedImagePath);
-                    using (var ms = new MemoryStream(imageBytes))
-                    {
-                        // Tạo ảnh từ bộ nhớ (stream)
-                        picAnhSua.Image = Image.FromStream(ms);
-                    }
-
-                    picAnhSua.SizeMode = PictureBoxSizeMode.Zoom;
+                    Image img = ProductImageHelper.LoadFromFile(selectedImagePath);
+                    if (img == null) throw new InvalidDataException("File không phải ảnh hợp lệ.");
+                    ProductImageHelper.ShowImage(picAnhSua, img);
                 }
                 catch (Exception ex)
                 {
