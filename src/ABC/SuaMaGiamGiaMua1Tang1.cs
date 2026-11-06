@@ -46,7 +46,7 @@ namespace ABC
         }
         private void LoadLoaiSanPhamMua()
         {
-            var dtLoaiSP = DataProvider.Instance.ExecuteQuery("SELECT maloai, tenloai FROM LOAISP");
+            var dtLoaiSP = DanhSachSanPhamBUS.Instance.GetLoaiSanPham();
             cbbSanPhamMua.DataSource = dtLoaiSP;
             cbbSanPhamMua.DisplayMember = "tenloai";
             cbbSanPhamMua.ValueMember = "maloai";

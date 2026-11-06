@@ -1,142 +1,130 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DTO;
-using System.Data.SqlClient;
-namespace DAO
+namespace DAO;
+
+public sealed class KhachHangDAO
 {
-    public class KhachHangDAO
-    {
-        private static DataProvider provider = DataProvider.Instance;
+    private static readonly Lazy<KhachHangDAO> LazyInstance =
+        new(() => new KhachHangDAO());
 
-        private static KhachHangDAO instance;
-        public static KhachHangDAO Instance
-        {
-            get
-            {
-                if (instance == null)
-                    instance = new KhachHangDAO();
-                return instance;
-            }
-        }
+    public static KhachHangDAO Instance => LazyInstance.Value;
 
-        public KhachHangDAO() { }
+    private KhachHangDAO() { }
+
         public static List<KhachHangDTO> layDSKH()
         {
-            List<KhachHangDTO> dsKH = new List<KhachHangDTO>();
-            string query = "SELECT * FROM KHACHHANG";
-            DataTable data = DataProvider.Instance.ExecuteQuery(query);
-            foreach (DataRow row in data.Rows)
-            {
-                KhachHangDTO kh = new KhachHangDTO(row);
-                dsKH.Add(kh);
-            }
-            return dsKH;
+            using var db = DatabaseContextFactory.Create();
+
+            return db.KHACHHANG
+                .Select(x => new KhachHangDTO
+                {
+                    Makh = x.Makh,
+                    Tenkh = x.Tenkh,
+                    Sdt = x.Sdt,
+                    Tichdiem = x.Tichdiem
+                })
+                .ToList();
         }
         public static string GetTenKhachHang(int maKH)
         {
-            string query = "SELECT tenkh FROM KHACHHANG WHERE makh = @makh";
-            SqlParameter[] parameters = {
-            new SqlParameter("@makh", maKH)
-            };
+            using var db = DatabaseContextFactory.Create();
 
-            object result = DataProvider.Instance.ExecuteScalar(query, parameters);
-            return result?.ToString() ?? "Khách lẻ";
+            return db.KHACHHANG
+                .Where(x => x.Makh == maKH)
+                .Select(x => x.Tenkh)
+                .FirstOrDefault() ?? "Khách lẻ";
         }
 
         public static string GetSDTKhachHang(int maKH)
         {
-            string query = "SELECT sdt FROM KHACHHANG WHERE makh = @makh";
-            SqlParameter[] parameters = {
-            new SqlParameter("@makh", maKH)
-            };
+            using var db = DatabaseContextFactory.Create();
 
-            object result = DataProvider.Instance.ExecuteScalar(query, parameters);
-            return result?.ToString() ?? "";
+            return db.KHACHHANG
+                .Where(x => x.Makh == maKH)
+                .Select(x => x.Sdt)
+                .FirstOrDefault() ?? string.Empty;
         }
         public static string LayTenKhachHangTheoSDT(string sdt)
         {
-            string query = "SELECT Tenkh FROM KHACHHANG WHERE sdt = @sdt";
-            SqlParameter[] parameters = {
-            new SqlParameter("@sdt", sdt)
-            };
+            using var db = DatabaseContextFactory.Create();
 
-            DataTable dt = provider.ExecuteQuery(query, parameters);
-            if (dt.Rows.Count > 0)
-            {
-                return dt.Rows[0]["Tenkh"].ToString();
-            }
-            return "Khách lẻ";
+            return db.KHACHHANG
+                .Where(x => x.Sdt == sdt)
+                .Select(x => x.Tenkh)
+                .FirstOrDefault() ?? "Khách lẻ";
         }
         public static void themKH(KhachHangDTO kh)
         {
-            string sql = "INSERT INTO KHACHHANG (Tenkh, Sdt, Tichdiem) VALUES (@Tenkh, @Sdt, @Tichdiem)";
-            SqlParameter[] parameters = new SqlParameter[]
+            using var db = DatabaseContextFactory.Create();
+
+            var entity = new KHACHHANG
             {
-                new SqlParameter("@Tenkh", kh.Tenkh),
-                new SqlParameter("@Sdt", kh.Sdt),
-                new SqlParameter("@Tichdiem", kh.Tichdiem)
+                Tenkh = kh.Tenkh,
+                Sdt = kh.Sdt,
+                Tichdiem = kh.Tichdiem
             };
-            DataProvider.Instance.ExecuteNonQuery(sql, parameters);
+
+            db.KHACHHANG.InsertOnSubmit(entity);
+            db.SubmitChanges();
+            kh.Makh = entity.Makh;
         }
         public static void xoaKH(int makh)
         {
-            string sql = "DELETE FROM KHACHHANG WHERE Makh = @Makh";
-            SqlParameter[] parameters = new SqlParameter[]
-            {
-                new SqlParameter("@Makh", makh)
-            };
-            DataProvider.Instance.ExecuteNonQuery(sql, parameters);
+            using var db = DatabaseContextFactory.Create();
+
+            var entity = db.KHACHHANG.FirstOrDefault(x => x.Makh == makh);
+            if (entity is null)
+                return;
+
+            db.KHACHHANG.DeleteOnSubmit(entity);
+            db.SubmitChanges();
         }
 
         public static void suaKH(KhachHangDTO kh)
         {
-            string sql = "UPDATE KHACHHANG SET Tenkh = @Tenkh, Sdt = @Sdt, Tichdiem = @Tichdiem WHERE Makh = @Makh";
-            SqlParameter[] parameters = new SqlParameter[]
-            {
-                new SqlParameter("@Makh", kh.Makh),
-                new SqlParameter("@Tenkh", kh.Tenkh),
-                new SqlParameter("@Sdt", kh.Sdt),
-                new SqlParameter("@Tichdiem", kh.Tichdiem)
-            };
-            DataProvider.Instance.ExecuteNonQuery(sql, parameters);
+            using var db = DatabaseContextFactory.Create();
+
+            var entity = db.KHACHHANG.FirstOrDefault(x => x.Makh == kh.Makh);
+            if (entity is null)
+                throw new InvalidOperationException($"Không tìm thấy khách hàng có mã {kh.Makh}.");
+
+            entity.Tenkh = kh.Tenkh;
+            entity.Sdt = kh.Sdt;
+            entity.Tichdiem = kh.Tichdiem;
+            db.SubmitChanges();
         }
         public static List<KhachHangDTO> timTheoTenHoacSDT(string keyword)
         {
-            List<KhachHangDTO> dsKH = new List<KhachHangDTO>();
-            string sql = "SELECT * FROM KHACHHANG WHERE Tenkh LIKE @Keyword OR Sdt LIKE @Keyword";
-            SqlParameter[] parameters = new SqlParameter[]
-            {
-                new SqlParameter("@Keyword", "%" + keyword + "%")
-            };
-            DataTable data = DataProvider.Instance.ExecuteQuery(sql, parameters);
-            foreach (DataRow row in data.Rows)
-            {
-                KhachHangDTO kh = new KhachHangDTO(row);
-                dsKH.Add(kh);
-            }
-            return dsKH;
+            keyword ??= string.Empty;
+            using var db = DatabaseContextFactory.Create();
+
+            return db.KHACHHANG
+                .Where(x => x.Tenkh.Contains(keyword) || x.Sdt.Contains(keyword))
+                .Select(x => new KhachHangDTO
+                {
+                    Makh = x.Makh,
+                    Tenkh = x.Tenkh,
+                    Sdt = x.Sdt,
+                    Tichdiem = x.Tichdiem
+                })
+                .ToList();
         }
         public List<KhachHangDTO> TimKiemTheoSDT(string sdt)
         {
-            string query = "SELECT makh, tenkh, sdt FROM KHACHHANG WHERE sdt LIKE @sdt";
-            SqlParameter[] param = { new SqlParameter("@sdt", "%" + sdt + "%") };
-            DataTable dt = provider.ExecuteQuery(query, param);
+            sdt ??= string.Empty;
+            using var db = DatabaseContextFactory.Create();
 
-            List<KhachHangDTO> list = new List<KhachHangDTO>();
-            foreach (DataRow row in dt.Rows)
-            {
-                list.Add(new KhachHangDTO
+            return db.KHACHHANG
+                .Where(x => x.Sdt.Contains(sdt))
+                .Select(x => new KhachHangDTO
                 {
-                    Makh = Convert.ToInt32(row["makh"]),
-                    Tenkh = row["tenkh"].ToString(),
-                    Sdt = row["sdt"].ToString()
-                });
-            }
-            return list;
+                    Makh = x.Makh,
+                    Tenkh = x.Tenkh,
+                    Sdt = x.Sdt,
+                    Tichdiem = x.Tichdiem
+                })
+                .ToList();
         }
     }
-}

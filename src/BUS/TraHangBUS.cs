@@ -21,16 +21,13 @@ namespace BUS
 
         public int TaoTraHang(int maHD, string manv, string lyDo, List<ChiTietTraHangDTO> chiTiet)
         {
-            // Tạo phiếu trả hàng
-            int maTra = dao.ThemTraHang(maHD, manv, lyDo);
-
-            // Thêm chi tiết và cập nhật tồn kho
-            foreach (var item in chiTiet)
-            {
-                dao.ThemChiTietTraHang(maTra, item.Masp, item.SoLuong, item.DonGia);
-            }
-
-            return maTra;
+            return dao.TaoTraHang(maHD, manv, lyDo, chiTiet);
         }
+
+        public DataTable GetHoaDonChoTraHang(string tuKhoa = "") => dao.GetHoaDonChoTraHang(tuKhoa);
+        public DataTable GetChiTietHoaDonTable(int maHD) => dao.GetChiTietHoaDonTable(maHD);
+        public DataTable GetChiTietTraHangTable(int maHD) => dao.GetChiTietTraHangTable(maHD);
+        public DataTable GetDanhSachTraHangTable(string tuKhoa = "") => dao.GetDanhSachTraHangTable(tuKhoa);
+        public DataTable GetChiTietTraHangByIdTable(int maTra) => dao.GetChiTietTraHangByIdTable(maTra);
     }
 }

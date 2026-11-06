@@ -37,7 +37,7 @@ namespace ABC
             cbbLoaiMa.SelectedIndex = 0;
 
             // Load loại sản phẩm mua
-            var dtLoaiSP = DataProvider.Instance.ExecuteQuery("SELECT maloai, tenloai FROM LOAISP");
+            var dtLoaiSP = DanhSachSanPhamBUS.Instance.GetLoaiSanPham();
             cbbSanPhamMua.DisplayMember = "tenloai";
             cbbSanPhamMua.ValueMember = "maloai";
             cbbSanPhamMua.DataSource = dtLoaiSP;
