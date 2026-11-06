@@ -2,7 +2,7 @@
 using System.Data;
 using DTO;
 using System;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 
 namespace DAO
 {

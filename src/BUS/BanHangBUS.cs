@@ -16,7 +16,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using iTextRectangle = iTextSharp.text.Rectangle;
 namespace BUS
 {

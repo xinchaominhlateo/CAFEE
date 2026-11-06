@@ -1,5 +1,5 @@
 ﻿using DTO;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System;
 using System.Data;
 

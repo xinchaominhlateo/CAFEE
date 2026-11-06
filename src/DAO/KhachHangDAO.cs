@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DTO;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 namespace DAO
 {
     public class KhachHangDAO
