@@ -26,8 +26,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BUS\BUS.csproj" />
-    <ProjectReference Include="..\DAO\DAO.csproj" />
     <ProjectReference Include="..\DTO\DTO.csproj" />
+    <ProjectReference Include="..\DAO\DAO.csproj" />
   </ItemGroup>
 
   <ItemGroup>
