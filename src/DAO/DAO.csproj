@@ -10,7 +10,6 @@
     <AssemblyName>DAO</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <LangVersion>latest</LangVersion>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -59,6 +58,8 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>DataClasses1.dbml</DependentUpon>
     </Compile>
+    <Compile Include="DataClasses2.designer.cs" />
+    <Compile Include="DataClasses3.designer.cs" />
     <Compile Include="KhachHangDAO.cs" />
     <Compile Include="KHODAO.cs" />
     <Compile Include="LichSuHoaDonDAO.cs" />
@@ -70,6 +71,16 @@
     <Compile Include="TraHangDAO.cs" />
     <Compile Include="Voucher1tang1DAO.cs" />
     <Compile Include="VoucherDAO.cs" />
+    <Compile Include="DataClasses2.designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DataClasses2.dbml</DependentUpon>
+    </Compile>
+    <Compile Include="DataClasses3.designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DataClasses3.dbml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>

@@ -18,24 +18,6 @@ namespace ABC
             InitializeComponent();
         }
 
-        private void btnGuiMail_Click(object sender, EventArgs e)
-        {
-            DateTime tuNgay = dtpTuNgay.Value.Date;
-            DateTime denNgay = dtpDenNgay.Value.Date;
-
-            var hoi = MessageBox.Show($"Gửi bảng lương từ {tuNgay:dd/MM/yyyy} đến {denNgay:dd/MM/yyyy} cho tất cả nhân viên?",
-                "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (hoi != DialogResult.Yes) return;
-
-            Cursor = Cursors.WaitCursor;
-            var kq = ChamCongBUS.Instance.GuiBangLuongQuaMail(tuNgay, denNgay);
-            Cursor = Cursors.Default;
-
-            string msg = $"Đã gửi thành công {kq.thanhCong} mail.";
-            if (kq.loi.Count > 0) msg += Environment.NewLine + Environment.NewLine + "Lỗi:" + Environment.NewLine + string.Join(Environment.NewLine, kq.loi);
-            MessageBox.Show(msg, "Kết quả");
-        }
-
         private void btnThoat_Click(object sender, EventArgs e)
         {
             this.Close();
@@ -43,11 +25,6 @@ namespace ABC
 
         private void LichSuChamCong_Load(object sender, EventArgs e)
         {
-            // Nút gửi bảng lương (tạo bằng code cho gọn, có thể kéo thả Button trong Designer thay thế)
-            var btnGuiMail = new Button { Text = "GỬI BẢNG LƯƠNG", Size = new Size(160, 49), Anchor = AnchorStyles.Left };
-            btnGuiMail.Click += btnGuiMail_Click;
-            tlpend.Controls.Add(btnGuiMail, 0, 0);
-
             dtpTuNgay.Value = DateTime.Today.AddDays(-7);
             dtpDenNgay.Value = DateTime.Today;
             FilterChamCong();

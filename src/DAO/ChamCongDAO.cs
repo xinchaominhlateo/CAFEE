@@ -87,27 +87,6 @@ namespace DAO
             }
         }
 
-        // Gộp chấm công theo nhân viên trong khoảng ngày -> bảng lương
-        public List<BangLuongDTO> GetBangLuong(DateTime tuNgay, DateTime denNgay)
-        {
-            using (var db = DatabaseContextFactory.Create())
-            {
-                return (from c in db.CHAMCONG
-                        join n in db.NHANVIEN on c.Manv equals n.Manv
-                        where c.Ngay >= tuNgay.Date && c.Ngay <= denNgay.Date
-                        group c by new { n.Manv, n.Hoten, n.Email, n.Luong } into g
-                        select new BangLuongDTO
-                        {
-                            Manv = g.Key.Manv,
-                            Hoten = g.Key.Hoten,
-                            Email = g.Key.Email,
-                            LuongGio = g.Key.Luong ?? 0m,
-                            TongPhut = g.Sum(x => x.TongThoiGian ?? 0),
-                            TongLuong = g.Sum(x => x.TongThoiGian ?? 0) / 60m * (g.Key.Luong ?? 0m)
-                        }).ToList();
-            }
-        }
-
         public decimal GetLuongTheoGio(string manv)
         {
             using (var db = DatabaseContextFactory.Create())
